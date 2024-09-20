@@ -6,6 +6,7 @@ import { useState } from "react";
 import { supabase } from "../../services/supabaseClient";
 import { useRouter } from "next/navigation"; // Use next/navigation for App Router
 import Image from "next/image"; // Import Image for logo usage
+import logo from "../../img/logo.svg";
 
 export default function Signup() {
     const [email, setEmail] = useState("");
@@ -31,7 +32,7 @@ export default function Signup() {
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-red-500 via-purple-500 to-blue-500">
             <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
                 <div className="flex justify-center mb-6">
-                    <Image src="/img/logo.svg" alt="RMatch Logo" width={120} height={60} />
+                    <Image src={logo} alt="RMatch Logo" width={240} height={120} />{" "}
                 </div>
                 <h2 className="text-2xl font-bold text-center mb-6 text-gray-600">Create an account</h2>
                 {error && <p className="text-red-500 text-center">{error}</p>}

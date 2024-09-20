@@ -6,6 +6,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation"; // Import useRouter from next/navigation
 import { supabase } from "../../services/supabaseClient"; // Adjust the path based on your structure
 import Image from "next/image";
+import logo from "../../img/logo.png";
 
 export default function Login() {
     const [email, setEmail] = useState("");
@@ -31,7 +32,7 @@ export default function Login() {
         <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-red-500 to-blue-700">
             <div className="w-full max-w-md p-8 bg-white rounded-md shadow-md">
                 <div className="flex justify-center mb-4">
-                    <Image src="/img/logo.svg" alt="RMatch Logo" width={120} height={60} />
+                    <Image src={logo} alt="RMatch Logo" width={240} height={120} />
                 </div>
                 <h1 className="text-2xl font-bold text-center mb-6 text-gray-800">Login</h1>
                 {error && <p className="mb-4 text-sm text-red-600">{error}</p>}
