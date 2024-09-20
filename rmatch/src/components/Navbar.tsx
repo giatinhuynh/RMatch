@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 const navItems = [
   { name: 'Find Teammates', path: '/dashboard', icon: '⭐' },
   { name: 'Find Friends', path: '/find-friends', icon: '👤' },
+  { name: 'Swipe History', path: '/swipe-history', icon: '📝' },
   { name: 'Matches', path: '/matches', icon: '❤️' },
   { name: 'Messages', path: '/messages', icon: '💬' },
   { name: 'Settings', path: '/settings', icon: '⚙️' },

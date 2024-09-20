@@ -6,7 +6,7 @@ import { useState } from "react";
 import { supabase } from "../../services/supabaseClient";
 import { useRouter } from "next/navigation"; // Use next/navigation for App Router
 import Image from "next/image"; // Import Image for logo usage
-import logo from "../../img/logo.svg";
+import logo from "../../img/logo.png";
 
 export default function Signup() {
     const [email, setEmail] = useState("");
