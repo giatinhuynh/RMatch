@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 
 export default function Profile() {
   const router = useRouter();
+  
   const [profile, setProfile] = useState({
     name: '',
     bio: '',
@@ -18,57 +19,64 @@ export default function Profile() {
     current_courses: '',
     social_links: { linkedin: '', github: '' },
     interests: '',
-    location: '',
-    languages: '',
-    preferred_project_type: '',
+    gender: '',
+    gpa: '',
+    age: '',
+    birthday: '',
+    student_id: '',
+    nationality: '',
   });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');  // Reset error state
-    setSuccess(false); // Reset success state
-    
+    setError('');
+    setSuccess(false);
+
     try {
-      // Get the currently authenticated user in Supabase v2.x
       const {
         data: { user },
-        error: authError,
       } = await supabase.auth.getUser();
-  
-      if (authError) {
-        throw new Error('Could not retrieve user: ' + authError.message);
-      }
-  
+
       if (!user) {
         throw new Error('User not logged in.');
       }
-  
-      // Try upserting the data to the profiles table
+
       const { data, error } = await supabase
         .from('profiles')
         .upsert({
-          id: user.id,  // User's ID should be linked correctly
-          ...profile, // Spread the profile state object
-          skills: profile.skills.split(','), // Convert skills to array
-          current_courses: profile.current_courses.split(','), // Convert courses to array
-          interests: profile.interests.split(','), // Convert interests to array
-          languages: profile.languages.split(','), // Convert languages to array
+          id: user.id,
+          name: profile.name,
+          bio: profile.bio,
+          profile_image: profile.profile_image,
+          skills: profile.skills.split(','), // Convert to array
+          desired_role: profile.desired_role,
+          academic_program: profile.academic_program,
+          work_preference: profile.work_preference,
+          availability: profile.availability,
+          current_courses: profile.current_courses.split(','), // Convert to array
+          social_links: profile.social_links, // Store as JSON
+          interests: profile.interests.split(','), // Convert to array
+          gender: profile.gender,
+          gpa: parseFloat(profile.gpa), // Parse GPA to a float
+          age: parseInt(profile.age), // Parse age to an integer
+          birthday: profile.birthday, // Date in YYYY-MM-DD format
+          student_id: profile.student_id,
+          nationality: profile.nationality,
         });
-  
+
       if (error) {
-        setError(error.message); // Display the exact error message from Supabase
+        setError(error.message);
         return;
       }
-  
+
       setSuccess(true);
-      router.push('/profile'); // Redirect to profile page on success
+      router.push('/profile'); // Redirect or refresh profile page on success
     } catch (err) {
       setError(err.message || 'An error occurred while saving the profile.');
     }
   };
-  
 
   return (
     <div className="max-w-4xl mx-auto p-6">
@@ -78,7 +86,7 @@ export default function Profile() {
       {success && <p className="text-green-500">Profile updated successfully!</p>}
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Basic Info Section */}
+        {/* Basic Info */}
         <div className="bg-white p-4 shadow-sm rounded-md">
           <h2 className="text-lg font-semibold mb-2">Basic Info</h2>
           <label className="block mb-2">Name:</label>
@@ -107,37 +115,64 @@ export default function Profile() {
           />
         </div>
 
-        {/* Skills & Interests Section */}
+        {/* Additional Info */}
         <div className="bg-white p-4 shadow-sm rounded-md">
-          <h2 className="text-lg font-semibold mb-2">Skills & Interests</h2>
-          <label className="block mb-2">Skills (comma-separated):</label>
+          <h2 className="text-lg font-semibold mb-2">Additional Info</h2>
+
+          <label className="block mb-2">Gender:</label>
           <input
             className="w-full border p-2 rounded-md"
             type="text"
-            value={profile.skills}
-            onChange={(e) => setProfile({ ...profile, skills: e.target.value })}
+            value={profile.gender}
+            onChange={(e) => setProfile({ ...profile, gender: e.target.value })}
           />
 
-          <label className="block mb-2 mt-4">Desired Role:</label>
+          <label className="block mb-2 mt-4">GPA:</label>
           <input
             className="w-full border p-2 rounded-md"
-            type="text"
-            value={profile.desired_role}
-            onChange={(e) => setProfile({ ...profile, desired_role: e.target.value })}
+            type="number"
+            step="0.01"
+            value={profile.gpa}
+            onChange={(e) => setProfile({ ...profile, gpa: e.target.value })}
           />
 
-          <label className="block mb-2 mt-4">Interests (comma-separated):</label>
+          <label className="block mb-2 mt-4">Age:</label>
+          <input
+            className="w-full border p-2 rounded-md"
+            type="number"
+            value={profile.age}
+            onChange={(e) => setProfile({ ...profile, age: e.target.value })}
+          />
+
+          <label className="block mb-2 mt-4">Birthday:</label>
+          <input
+            className="w-full border p-2 rounded-md"
+            type="date"
+            value={profile.birthday}
+            onChange={(e) => setProfile({ ...profile, birthday: e.target.value })}
+          />
+
+          <label className="block mb-2 mt-4">Student ID:</label>
           <input
             className="w-full border p-2 rounded-md"
             type="text"
-            value={profile.interests}
-            onChange={(e) => setProfile({ ...profile, interests: e.target.value })}
+            value={profile.student_id}
+            onChange={(e) => setProfile({ ...profile, student_id: e.target.value })}
+          />
+
+          <label className="block mb-2 mt-4">Nationality:</label>
+          <input
+            className="w-full border p-2 rounded-md"
+            type="text"
+            value={profile.nationality}
+            onChange={(e) => setProfile({ ...profile, nationality: e.target.value })}
           />
         </div>
 
-        {/* Academic & Work Section */}
+        {/* Academic & Work Details */}
         <div className="bg-white p-4 shadow-sm rounded-md">
           <h2 className="text-lg font-semibold mb-2">Academic & Work Details</h2>
+          
           <label className="block mb-2">Academic Program:</label>
           <input
             className="w-full border p-2 rounded-md"
@@ -171,9 +206,10 @@ export default function Profile() {
           />
         </div>
 
-        {/* Social Links & Location */}
+        {/* Social Links */}
         <div className="bg-white p-4 shadow-sm rounded-md">
-          <h2 className="text-lg font-semibold mb-2">Social Links & Location</h2>
+          <h2 className="text-lg font-semibold mb-2">Social Links</h2>
+
           <label className="block mb-2">LinkedIn:</label>
           <input
             className="w-full border p-2 rounded-md"
@@ -197,32 +233,6 @@ export default function Profile() {
                 ...profile,
                 social_links: { ...profile.social_links, github: e.target.value },
               })
-            }
-          />
-
-          <label className="block mb-2 mt-4">Location:</label>
-          <input
-            className="w-full border p-2 rounded-md"
-            type="text"
-            value={profile.location}
-            onChange={(e) => setProfile({ ...profile, location: e.target.value })}
-          />
-
-          <label className="block mb-2 mt-4">Languages Spoken (comma-separated):</label>
-          <input
-            className="w-full border p-2 rounded-md"
-            type="text"
-            value={profile.languages}
-            onChange={(e) => setProfile({ ...profile, languages: e.target.value })}
-          />
-
-          <label className="block mb-2 mt-4">Preferred Project Type:</label>
-          <input
-            className="w-full border p-2 rounded-md"
-            type="text"
-            value={profile.preferred_project_type}
-            onChange={(e) =>
-              setProfile({ ...profile, preferred_project_type: e.target.value })
             }
           />
         </div>
