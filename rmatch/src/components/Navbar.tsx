@@ -81,7 +81,7 @@ export default function Navbar() {
     ];
 
     return (
-        <nav className="bg-gray-100 w-64 h-screen flex flex-col" style={{ height: "calc(100vh - 54px)" }}>
+        <nav className="bg-gray-100 w-64 h-screen flex flex-col" style={{ minHeight: "calc(100vh - 54px)", height: "auto" }}>
             <ul className="mt-10">
                 {navItems.map((item, index) => {
                     const Icon = item.icon;
