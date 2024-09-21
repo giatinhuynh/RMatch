@@ -12,6 +12,7 @@ const TeammateIcon = ({ color = "currentColor", ...props }) => (
     </svg>
 );
 
+
 const SwipeIcon = ({ color = "currentColor", ...props }) => (
     <svg {...props} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill={color}>
         <path
@@ -65,6 +66,7 @@ const ProfileIcon = ({ color = "currentColor", ...props }) => (
         />
     </svg>
 );
+// >>>>>>> f00116c97dee11964e0e6ef6be86934e6cd4baeb
 
 export default function Navbar() {
     const router = useRouter();

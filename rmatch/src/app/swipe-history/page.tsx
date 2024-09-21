@@ -26,15 +26,14 @@ export default function SwipeHistory() {
 
       const { data: swipeData, error } = await supabase
         .from('swipes')
-        .select('*, profiles!swiped_profile_id_fkey(*)') // Join with profiles table
-        .eq('swiper_id', userId); // Fetch swipes made by the current user
+        .select('*, profiles!swiped_profile_id_fkey(name)') // Join with the profiles table to get names
+        .eq('swiper_id', userId);
 
       if (error) {
         console.error('Error fetching swipe history:', error);
-        return;
+      } else {
+        setSwipes(swipeData);
       }
-
-      setSwipes(swipeData);
     }
 
     fetchSwipes();
@@ -49,13 +48,11 @@ export default function SwipeHistory() {
 
       if (error) {
         console.error('Error unswiping:', error);
-        return;
+      } else {
+        setSwipes(swipes.filter((swipe) => swipe.id !== swipeId)); // Remove the unswiped item from the list
       }
-
-      // Filter out the removed swipe from the local state
-      setSwipes(swipes.filter((swipe) => swipe.id !== swipeId));
-    } catch (err) {
-      console.error('Unexpected error during unswipe:', err);
+    } catch (error) {
+      console.error('Unexpected error during unswipe:', error);
     }
   };
 
@@ -66,7 +63,7 @@ export default function SwipeHistory() {
       {swipes.length > 0 ? (
         swipes.map((swipe, index) => (
           <div key={index} className="bg-white p-4 shadow-md rounded-lg mb-4">
-            <p>{swipe.profiles.name} (Swipe: {swipe.swipe_type})</p>
+            <p>{swipe.profiles.name} (Swipe: {swipe.swipe_type})</p> {/* Display the profile name */}
             <button
               className="bg-red-500 text-white py-2 px-4 rounded"
               onClick={() => handleUnswipe(swipe.id)}
