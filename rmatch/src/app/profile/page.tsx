@@ -25,7 +25,12 @@ export default function Profile() {
     birthday: '',
     student_id: '',
     nationality: '',
+    outcome_preference: '',
+    motivation: '',
+    work_ethic: '',
+    team_wants: '',
   });
+
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
 
@@ -64,6 +69,10 @@ export default function Profile() {
           birthday: profile.birthday, // Date in YYYY-MM-DD format
           student_id: profile.student_id,
           nationality: profile.nationality,
+          outcome_preference: profile.outcome_preference,
+          motivation: profile.motivation,
+          work_ethic: profile.work_ethic,
+          team_wants: profile.team_wants.split(','), // Convert to array
         });
 
       if (error) {
@@ -203,6 +212,43 @@ export default function Profile() {
             type="text"
             value={profile.current_courses}
             onChange={(e) => setProfile({ ...profile, current_courses: e.target.value })}
+          />
+        </div>
+
+        {/* Outcome, Motivation, Work Ethic, and Wants */}
+        <div className="bg-white p-4 shadow-sm rounded-md">
+          <h2 className="text-lg font-semibold mb-2">Outcome & Motivation</h2>
+          
+          <label className="block mb-2">Outcome Preference (e.g., Aim for HD):</label>
+          <input
+            className="w-full border p-2 rounded-md"
+            type="text"
+            value={profile.outcome_preference}
+            onChange={(e) => setProfile({ ...profile, outcome_preference: e.target.value })}
+          />
+
+          <label className="block mb-2 mt-4">Motivation / Purpose:</label>
+          <input
+            className="w-full border p-2 rounded-md"
+            type="text"
+            value={profile.motivation}
+            onChange={(e) => setProfile({ ...profile, motivation: e.target.value })}
+          />
+
+          <label className="block mb-2 mt-4">Work Ethic / Team Style:</label>
+          <input
+            className="w-full border p-2 rounded-md"
+            type="text"
+            value={profile.work_ethic}
+            onChange={(e) => setProfile({ ...profile, work_ethic: e.target.value })}
+          />
+
+          <label className="block mb-2 mt-4">Wants in a Team (comma-separated):</label>
+          <input
+            className="w-full border p-2 rounded-md"
+            type="text"
+            value={profile.team_wants}
+            onChange={(e) => setProfile({ ...profile, team_wants: e.target.value })}
           />
         </div>
 
