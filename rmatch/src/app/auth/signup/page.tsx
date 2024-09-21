@@ -16,17 +16,20 @@ export default function Signup() {
 
     const handleSignup = async (e: React.FormEvent) => {
         e.preventDefault();
-        const { user, session, error } = await supabase.auth.signUp({
+    
+        // Destructure the response correctly
+        const { data, error } = await supabase.auth.signUp({
             email,
             password,
         });
-
+    
         if (error) {
             setError(error.message);
-        } else {
+        } else if (data) {
             router.push("/profile"); // Redirect to profile on success
         }
     };
+    
 
     return (
         <div className="flex items-center justify-center bg-gradient-to-r from-red-500 to-blue-700" style={{ height: "100vh" }}>
