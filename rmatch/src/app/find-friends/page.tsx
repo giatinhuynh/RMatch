@@ -8,8 +8,8 @@ import { useSpring, animated } from "react-spring";
 export default function FindFriends() {
     const [profiles, setProfiles] = useState([]);
     const [currentProfileIndex, setCurrentProfileIndex] = useState(0);
-    const [userId, setUserId] = useState(null);
-    const [error, setError] = useState(null);
+    const [userId, setUserId] = useState<string | null>(null); // Set userId as string | null
+    const [error, setError] = useState<string | null>(null); // Allow error to be a string or null
     const [swipeAnimation, setSwipeAnimation] = useSpring(() => ({
         opacity: 1,
         transform: "translateX(0)",
@@ -48,7 +48,6 @@ export default function FindFriends() {
                 const { data: profilesData, error } = await supabase
                     .from("profiles")
                     .select("id, name, bio, profile_image, interests, availability, gender, academic_program, work_preference") // Include fields relevant for finding friends
-                    .not("id", "in", swipedProfileIds.length > 0 ? `(${swipedProfileIds.join(",")})` : "0") // Exclude previously swiped profiles
                     .not("id", "eq", user.id); // Exclude the current user
 
                 if (error) {
@@ -57,7 +56,15 @@ export default function FindFriends() {
                     return;
                 }
 
-                setProfiles(profilesData);
+                // If there are swiped profiles, exclude them
+                let filteredProfiles = profilesData;
+                if (swipedProfileIds.length > 0) {
+                    filteredProfiles = profilesData.filter(
+                        (profile) => !swipedProfileIds.includes(profile.id)
+                    );
+                }
+
+                setProfiles(filteredProfiles);
                 setCurrentProfileIndex(0);
             }
         }
@@ -66,7 +73,7 @@ export default function FindFriends() {
     }, []);
 
     // Handle swipe logic (left or right)
-    const handleSwipe = async (profileId, swipeType) => {
+    const handleSwipe = async (profileId: string, swipeType: string) => {
         if (!userId) return;
 
         // Trigger swipe animation
