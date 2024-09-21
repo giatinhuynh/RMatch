@@ -4,7 +4,31 @@ import { useState } from "react";
 import Image from "next/image";
 import avatar from "./../app/img/avatar.png"; // Default avatar if no image is available
 
-export default function ProfileCard({ profile, onSwipe }) {
+// Define an interface for the profile object
+interface Profile {
+    id: string;
+    name: string;
+    bio: string;
+    profile_image?: string;
+    academic_program?: string;
+    nationality?: string;
+    gender?: string;
+    outcome_preference?: string;
+    motivation?: string;
+    work_ethic?: string;
+    team_wants?: string[];
+    work_preference?: string;
+    availability?: string;
+    current_courses?: string[];
+}
+
+// Define the props for ProfileCard
+interface ProfileCardProps {
+    profile: Profile;
+    onSwipe: (id: string, action: "like" | "dislike") => void;
+}
+
+export default function ProfileCard({ profile, onSwipe }: ProfileCardProps) {
     const [activeTab, setActiveTab] = useState(1); // Track which tab is active (1 = Basic Info, 2 = Outcome & Motivation, 3 = Academic & Work Details)
 
     return (
@@ -16,7 +40,7 @@ export default function ProfileCard({ profile, onSwipe }) {
                     alt={profile.name}
                     layout="fill"
                     className="object-cover z-10"
-                    onError={(e) => (e.currentTarget.src = avatar)} // Fallback to default avatar if image fails to load
+                    onError={(e) => (e.currentTarget.src = avatar.src)} // Fallback to default avatar if image fails to load
                 />
                 <div className="absolute inset-0 bg-black bg-opacity-40 backdrop-blur-sm"></div>
             </div>
@@ -80,8 +104,7 @@ export default function ProfileCard({ profile, onSwipe }) {
                             <strong>Availability:</strong> {profile.availability || "Not specified"}
                         </pre>
                         <pre className="text-gray-600 mt-2">
-                            <strong>Current Courses:</strong>{" "}
-                            {Array.isArray(profile.current_courses) ? profile.current_courses.join(", ") : "No courses specified"}
+                            <strong>Current Courses:</strong> {Array.isArray(profile.current_courses) ? profile.current_courses.join(", ") : "No courses specified"}
                         </pre>
                     </div>
                 )}
