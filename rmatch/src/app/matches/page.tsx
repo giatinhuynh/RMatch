@@ -89,7 +89,7 @@ export default function Matches() {
 
     return (
         <div className="max-w-4xl mx-auto p-6">
-            <h1 className="text-3xl font-bold mb-6">Your Matches</h1>
+            <h1 className="text-3xl font-bold mb-6 text-grey-700">Your Matches</h1>
 
             {/* Display matches or a message if no matches are found */}
             {matches.length > 0 ? (
@@ -103,7 +103,7 @@ export default function Matches() {
                             />
                             <p className="text-gray-700">{match.profiles?.name}</p>
                         </div>
-                        <button className="bg-blue-500 text-white py-2 px-4 rounded" onClick={() => initiateChat(match.swiped_profile_id)}>
+                        <button className="bg-blue-500 text-grey-700 py-2 px-4 rounded" onClick={() => initiateChat(match.swiped_profile_id)}>
                             Chat
                         </button>
                     </div>

@@ -6,25 +6,25 @@ import Navbar from "./Navbar";
 import FontProvider from "./FontProvider"; // Import FontProvider
 
 export default function LayoutWrapper({ children }) {
-  const pathname = usePathname();
+    const pathname = usePathname();
 
-  // List of paths that don't require Header or Navbar
-  const noHeaderNavbarPaths = ["/auth/login", "/auth/signup"];
-  const shouldShowHeaderNavbar = !noHeaderNavbarPaths.includes(pathname);
+    // List of paths that don't require Header or Navbar
+    const noHeaderNavbarPaths = ["/auth/login", "/auth/signup"];
+    const shouldShowHeaderNavbar = !noHeaderNavbarPaths.includes(pathname);
 
-  return (
-    <FontProvider>
-      {shouldShowHeaderNavbar ? (
-        <>
-          <Header />
-          <div className="flex">
-            <Navbar />
-            <div className="flex-grow">{children}</div>
-          </div>
-        </>
-      ) : (
-        <div>{children}</div>
-      )}
-    </FontProvider>
-  );
+    return (
+        <FontProvider>
+            {shouldShowHeaderNavbar ? (
+                <>
+                    <Header />
+                    <div className="flex bg-white">
+                        <Navbar />
+                        <div className="flex-grow">{children}</div>
+                    </div>
+                </>
+            ) : (
+                <div>{children}</div>
+            )}
+        </FontProvider>
+    );
 }
