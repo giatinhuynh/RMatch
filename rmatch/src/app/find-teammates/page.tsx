@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import ProfileCard from "../../components/ProfileCard"; // Assuming ProfileCard is external
+import ProfileCard from "../../components/ProfileCard";
 import { supabase } from "../services/supabaseClient";
 import { useSpring, animated } from "react-spring";
 
@@ -17,6 +17,7 @@ export default function FindTeammates() {
         transform: "translateX(0)",
     }));
 
+    // Fetch user data and their current courses
     useEffect(() => {
         async function fetchUserAndCourses() {
             const {
@@ -50,10 +51,15 @@ export default function FindTeammates() {
         fetchUserAndCourses();
     }, []);
 
+    // Fetch profiles for a given course
     const fetchProfilesForCourse = async (course) => {
         if (!course || !userId) return;
 
-        const { data: swipedProfiles, error: swipedError } = await supabase.from("swipes").select("swiped_profile_id").eq("swiper_id", userId);
+        // Get swiped profiles to exclude them
+        const { data: swipedProfiles, error: swipedError } = await supabase
+            .from("swipes")
+            .select("swiped_profile_id")
+            .eq("swiper_id", userId);
         if (swipedError) {
             console.error("Error fetching swiped profiles:", swipedError);
             setError("Error fetching swiped profiles.");
@@ -62,9 +68,10 @@ export default function FindTeammates() {
 
         const swipedProfileIds = swipedProfiles.map((swipe) => swipe.swiped_profile_id);
 
+        // Fetch profiles that match the course and exclude swiped profiles and the current user
         const { data: profilesData, error } = await supabase
             .from("profiles")
-            .select("*")
+            .select("id, name, bio, profile_image, current_courses") // Make sure to include profile_image
             .contains("current_courses", [course])
             .not("id", "in", `(${swipedProfileIds.join(",")})`)
             .not("id", "eq", userId);
@@ -79,6 +86,7 @@ export default function FindTeammates() {
         setCurrentProfileIndex(0);
     };
 
+    // Handle course change
     const handleCourseChange = (e) => {
         const selected = e.target.value;
         setSelectedCourse(selected);
@@ -86,9 +94,11 @@ export default function FindTeammates() {
         setIsDropdownOpen(false); // Close dropdown after selection
     };
 
+    // Handle swipe logic (left or right)
     const handleSwipe = async (profileId, swipeType) => {
         if (!userId) return;
 
+        // Trigger swipe animation
         setSwipeAnimation({
             opacity: 0,
             transform: swipeType === "right" ? "translateX(100%)" : "translateX(-100%)",
@@ -98,6 +108,7 @@ export default function FindTeammates() {
         await new Promise((resolve) => setTimeout(resolve, 300));
 
         try {
+            // Insert swipe record into the database
             const { error: swipeError } = await supabase
                 .from("swipes")
                 .insert([{ swiper_id: userId, swiped_profile_id: profileId, swipe_type: swipeType }]);
@@ -121,9 +132,11 @@ export default function FindTeammates() {
     return (
         <div
             className="flex flex-col items-center justify-center p-4 bg-gradient-to-r from-red-500 to-blue-700 rounded-md"
-            style={{ height: "calc(100vh - 54px)" }}>
+            style={{ height: "calc(100vh - 54px)" }}
+        >
             <h1 className="mt-2 text-2xl font-extrabold mb-6 text-black shadow-lg">Find a Teammate</h1>
 
+            {/* Course Dropdown */}
             {courses.length > 0 ? (
                 <div className="relative mb-4">
                     <select
@@ -150,7 +163,8 @@ export default function FindTeammates() {
                                 isDropdownOpen ? "rotate-180" : "rotate-0"
                             }`}
                             xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 20 20">
+                            viewBox="0 0 20 20"
+                        >
                             <path d="M7 10l5 5 5-5H7z" />
                         </svg>
                     </div>
@@ -159,12 +173,20 @@ export default function FindTeammates() {
                 <p className="text-gray-200">You are not enrolled in any courses.</p>
             )}
 
-            {!selectedCourse && courses.length > 0 && <p className="text-gray-200">Please select a course to find teammates.</p>}
+            {!selectedCourse && courses.length > 0 && (
+                <p className="text-gray-200">Please select a course to find teammates.</p>
+            )}
 
-            {selectedCourse && profiles.length === 0 && <p className="text-gray-200">No profiles available for {selectedCourse}.</p>}
+            {selectedCourse && profiles.length === 0 && (
+                <p className="text-gray-200">No profiles available for {selectedCourse}.</p>
+            )}
 
+            {/* Display profile cards if available */}
             {selectedCourse && profiles.length > 0 && currentProfileIndex < profiles.length && (
-                <animated.div style={swipeAnimation} className="flex flex-col items-center mb-4 w-full transition-transform duration-200">
+                <animated.div
+                    style={swipeAnimation}
+                    className="flex flex-col items-center mb-4 w-full transition-transform duration-200"
+                >
                     <ProfileCard profile={profiles[currentProfileIndex]} onSwipe={handleSwipe} />
                 </animated.div>
             )}

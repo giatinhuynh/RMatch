@@ -2,11 +2,47 @@
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { supabase } from "@/app/services/supabaseClient"; // Adjust the path if necessary
 import logo from "@/app/img/logo.png"; // Adjust the path based on your project structure
-import avatar from "@/app/img/avatar.png"; // Adjust the path based on your project structure
+import defaultAvatar from "@/app/img/avatar.png"; // Default avatar if no profile image
 
 export default function Header() {
     const router = useRouter();
+    const [profileImage, setProfileImage] = useState(null); // State to hold profile image URL
+    const [error, setError] = useState('');
+
+    // Fetch user profile image
+    useEffect(() => {
+        async function fetchProfileImage() {
+            try {
+                const { data: { user }, error: userError } = await supabase.auth.getUser();
+                if (userError || !user) {
+                    setError("Error fetching user information.");
+                    return;
+                }
+
+                // Fetch user's profile from 'profiles' table
+                const { data: profileData, error: profileError } = await supabase
+                    .from('profiles')
+                    .select('profile_image')
+                    .eq('id', user.id)
+                    .single();
+
+                if (profileError || !profileData) {
+                    setError("Error fetching profile.");
+                    return;
+                }
+
+                setProfileImage(profileData.profile_image || null); // Set profile image URL
+            } catch (error) {
+                console.error("Error fetching profile image:", error);
+                setError("Unexpected error occurred.");
+            }
+        }
+
+        fetchProfileImage();
+    }, []);
 
     return (
         <header className="bg-white shadow p-1 px-3 flex justify-between items-center w-full h-[54px]">
@@ -42,7 +78,7 @@ export default function Header() {
                 {/* User Icon / Avatar */}
                 <div className="relative h-10 w-10 rounded-full overflow-hidden cursor-pointer" onClick={() => router.push("/profile")}>
                     <Image
-                        src={avatar} // Use imported image
+                        src={profileImage || defaultAvatar} // Use user's profile image if available, otherwise fallback to default avatar
                         alt="User Avatar"
                         fill
                         className="object-cover"

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import avatar from "./../app/img/avatar.png";
+import avatar from "./../app/img/avatar.png"; // Default avatar if no image is available
 
 export default function ProfileCard({ profile, onSwipe }) {
     const [activeTab, setActiveTab] = useState(1); // Track which tab is active (1 = Basic Info, 2 = Outcome & Motivation, 3 = Academic & Work Details)
@@ -12,11 +12,11 @@ export default function ProfileCard({ profile, onSwipe }) {
             {/* Profile Picture */}
             <div className="w-full h-[200px] relative">
                 <Image
-                    src={profile.profile_image?.startsWith("http") ? profile.profile_image : avatar}
+                    src={profile.profile_image?.startsWith("http") ? profile.profile_image : avatar} // Use avatar if no profile image
                     alt={profile.name}
                     layout="fill"
-                    className="object-contain z-10"
-                    onError={(e) => (e.currentTarget.src = avatar)}
+                    className="object-cover z-10"
+                    onError={(e) => (e.currentTarget.src = avatar)} // Fallback to default avatar if image fails to load
                 />
                 <div className="absolute inset-0 bg-black bg-opacity-40 backdrop-blur-sm"></div>
             </div>
@@ -38,7 +38,7 @@ export default function ProfileCard({ profile, onSwipe }) {
             <div className="p-4">
                 {activeTab === 1 && (
                     <div>
-                        <pre className="text-gray-700 text-lg font-semibold">{"Name: " + profile.name + "     Bio:" + profile.bio}</pre>
+                        <pre className="text-gray-700 text-lg font-semibold">{"Name: " + profile.name + "     Bio: " + profile.bio}</pre>
                         <pre className="text-gray-600 mt-2">
                             <strong>Academic Program:</strong> {profile.academic_program || "Not specified"}
                         </pre>
@@ -63,8 +63,7 @@ export default function ProfileCard({ profile, onSwipe }) {
                             <strong>Work Ethic:</strong> {profile.work_ethic || "Not specified"}
                         </pre>
                         <pre className="text-gray-600 mt-2">
-                            <strong>Wants in a Team:</strong>{" "}
-                            {Array.isArray(profile.team_wants) ? profile.team_wants.join(", ") : "No preferences specified"}
+                            <strong>Wants in a Team:</strong> {Array.isArray(profile.team_wants) ? profile.team_wants.join(", ") : "No preferences specified"}
                         </pre>
                     </div>
                 )}
@@ -92,13 +91,15 @@ export default function ProfileCard({ profile, onSwipe }) {
             <div className="flex justify-around mt-4 mb-4">
                 <button
                     className="flex items-center bg-red-600 text-white py-2 px-6 rounded-full hover:bg-red-700 transition duration-200 ease-in-out shadow-md transform hover:scale-105"
-                    onClick={() => onSwipe(profile.id, "dislike")}>
+                    onClick={() => onSwipe(profile.id, "dislike")}
+                >
                     <span className="mr-2">&#10060;</span>
                     Swipe Left
                 </button>
                 <button
                     className="flex items-center bg-green-600 text-white py-2 px-6 rounded-full hover:bg-green-700 transition duration-200 ease-in-out shadow-md transform hover:scale-105"
-                    onClick={() => onSwipe(profile.id, "like")}>
+                    onClick={() => onSwipe(profile.id, "like")}
+                >
                     <span className="mr-2">&#10004;</span>
                     Swipe Right
                 </button>
