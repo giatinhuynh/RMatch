@@ -4,13 +4,15 @@ import { useEffect, useState } from "react";
 import { supabase } from "../services/supabaseClient";
 import { useRouter } from "next/navigation"; // To navigate to the chat page
 
+interface Profile {
+    id: string;
+    name: string;
+    profile_image: string;
+}
+
 interface Match {
     swiped_profile_id: string;
-    profiles: {
-        id: string;
-        name: string;
-        profile_image: string;
-    };
+    profiles: Profile[]; // Changed profiles to an array of Profile objects
 }
 
 export default function Matches() {
@@ -81,7 +83,10 @@ export default function Matches() {
                 }
 
                 // Step 3: Filter out the current user's profile from the matches
-                const filteredMatches = matchesData.filter((match: Match) => match.profiles?.id !== userId);
+                const filteredMatches = matchesData.filter((match: Match) => {
+                    // Assuming profiles is an array, take the first profile object
+                    return match.profiles[0]?.id !== userId;
+                });
 
                 setMatches(filteredMatches);
             } catch (err) {
@@ -108,13 +113,16 @@ export default function Matches() {
                     <div key={index} className="bg-white p-4 shadow-md rounded-lg mb-4 flex items-center justify-between">
                         <div className="flex items-center">
                             <img
-                                src={match.profiles?.profile_image || "/images/default-avatar.jpg"}
-                                alt={match.profiles?.name}
+                                src={match.profiles[0]?.profile_image || "/images/default-avatar.jpg"} // Use the first profile from the array
+                                alt={match.profiles[0]?.name}
                                 className="w-12 h-12 rounded-full mr-4 object-cover"
                             />
-                            <p className="text-gray-700">{match.profiles?.name}</p>
+                            <p className="text-gray-700">{match.profiles[0]?.name}</p>
                         </div>
-                        <button className="bg-blue-500 text-grey-700 py-2 px-4 rounded" onClick={() => initiateChat(match.swiped_profile_id)}>
+                        <button
+                            className="bg-blue-500 text-grey-700 py-2 px-4 rounded"
+                            onClick={() => initiateChat(match.swiped_profile_id)}
+                        >
                             Chat
                         </button>
                     </div>
