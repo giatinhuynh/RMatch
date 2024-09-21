@@ -12,7 +12,6 @@ const TeammateIcon = ({ color = "currentColor", ...props }) => (
     </svg>
 );
 
-
 const SwipeIcon = ({ color = "currentColor", ...props }) => (
     <svg {...props} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill={color}>
         <path
