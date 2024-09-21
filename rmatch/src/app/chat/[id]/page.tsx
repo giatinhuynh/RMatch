@@ -10,7 +10,7 @@ export default function ChatPage() {
     const [messages, setMessages] = useState([]);
     const [newMessage, setNewMessage] = useState("");
     const [userId, setUserId] = useState(null);
-    const [error, setError] = useState(null);
+    const [error, setError] = useState<string | null>("");  // Updated the initial value of error
 
     // Fetch current user
     useEffect(() => {
