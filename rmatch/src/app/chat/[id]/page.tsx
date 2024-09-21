@@ -4,10 +4,19 @@ import { useEffect, useState } from "react";
 import { supabase } from "../../services/supabaseClient";
 import { useParams } from "next/navigation"; // To get the matched profile ID from the URL
 
+// Define the Message type
+type Message = {
+    id: string;
+    chat_id: string;
+    sender_id: string;
+    message_text: string;
+    sent_at: string;
+};
+
 export default function ChatPage() {
     const { id: otherUserId } = useParams(); // Matched profile ID from URL
-    const [chatId, setChatId] = useState(null);
-    const [messages, setMessages] = useState([]);
+    const [chatId, setChatId] = useState<string | null>(null);
+    const [messages, setMessages] = useState<Message[]>([]); // State for messages
     const [newMessage, setNewMessage] = useState("");
     const [userId, setUserId] = useState<string | null>(null); // Set userId as string | null
     const [error, setError] = useState<string | null>("");  // Updated the initial value of error
@@ -50,7 +59,7 @@ export default function ChatPage() {
             return;
         }
 
-        setMessages(messageData);
+        setMessages(messageData as Message[]); // Cast the data to Message[] type
     };
 
     // Fetch chat between the two users or create a new one
