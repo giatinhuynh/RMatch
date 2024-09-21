@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import Image from "next/image";
+import { supabase } from "../app/services/supabaseClient";
 
 const TeammateIcon = ({ color = "currentColor", ...props }) => (
     <svg {...props} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" fill={color}>
@@ -49,7 +50,7 @@ const ProfileIcon = ({ color = "currentColor", ...props }) => (
 );
 
 export default function Navbar() {
-    const pathname = usePathname(); // Use `usePathname` to get the current route
+    const pathname = usePathname(); // Get the current route
 
     const navItems = [
         { name: "Find Teammates", path: "/find-teammates", icon: TeammateIcon },
@@ -58,6 +59,15 @@ export default function Navbar() {
         { name: "Matches", path: "/matches", icon: MatchIcon },
         { name: "Profile", path: "/profile", icon: ProfileIcon },
     ];
+
+    const handleSignOut = async () => {
+        const { error } = await supabase.auth.signOut();
+        if (!error) {
+            window.location.assign("/auth/login"); // Redirect to login after sign-out
+        } else {
+            console.error("Error signing out:", error.message);
+        }
+    };
 
     return (
         <nav className="bg-gray-100 w-64 h-screen flex flex-col" style={{ minHeight: "calc(100vh - 54px)", height: "auto" }}>
@@ -73,17 +83,23 @@ export default function Navbar() {
                             }`}
                             onClick={() => window.location.assign(item.path)}>
                             <div className="mr-4">
-                                {typeof Icon === "string" ? (
-                                    <Image src={Icon} alt={`${item.name} Icon`} className="w-6 h-6 rounded-full" />
-                                ) : (
-                                    <Icon color={pathname === item.path ? "#E60028" : "currentColor"} width={24} height={24} />
-                                )}
+                                <Icon color={pathname === item.path ? "#E60028" : "currentColor"} width={24} height={24} />
                             </div>
                             {item.name}
                         </li>
                     );
                 })}
             </ul>
+
+            {/* Sign Out Button */}
+            <div className="mt-auto mb-4">
+                <button
+                    onClick={handleSignOut}
+                    className="flex items-center justify-center py-2 px-6 bg-red-600 text-white rounded-full hover:bg-red-700 transition duration-200 ease-in-out shadow-md w-full"
+                >
+                    Sign Out
+                </button>
+            </div>
         </nav>
     );
 }
