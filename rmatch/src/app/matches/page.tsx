@@ -4,8 +4,17 @@ import { useEffect, useState } from "react";
 import { supabase } from "../services/supabaseClient";
 import { useRouter } from "next/navigation"; // To navigate to the chat page
 
+interface Match {
+    swiped_profile_id: string;
+    profiles: {
+        id: string;
+        name: string;
+        profile_image: string;
+    };
+}
+
 export default function Matches() {
-    const [matches, setMatches] = useState<any[]>([]); // Matches array type
+    const [matches, setMatches] = useState<Match[]>([]); // Define the structure of matches explicitly
     const [userId, setUserId] = useState<string | null>(null); // Set userId as string | null
     const [error, setError] = useState<string | null>(null); // Allow error to be string or null
     const router = useRouter();
@@ -72,7 +81,7 @@ export default function Matches() {
                 }
 
                 // Step 3: Filter out the current user's profile from the matches
-                const filteredMatches = matchesData.filter((match) => match.profiles.id !== userId);
+                const filteredMatches = matchesData.filter((match: Match) => match.profiles?.id !== userId);
 
                 setMatches(filteredMatches);
             } catch (err) {
