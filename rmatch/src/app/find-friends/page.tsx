@@ -47,8 +47,8 @@ export default function FindFriends() {
                 // Fetch all profiles, excluding the current user and previously swiped profiles
                 const { data: profilesData, error } = await supabase
                     .from("profiles")
-                    .select("id, name, bio, profile_image, interests, availability, gender, academic_program") // Include fields relevant for finding friends
-                    .not("id", "in", `(${swipedProfileIds.join(",")})`) // Exclude previously swiped profiles
+                    .select("id, name, bio, profile_image, interests, availability, gender, academic_program, work_preference") // Include fields relevant for finding friends
+                    .not("id", "in", swipedProfileIds.length > 0 ? `(${swipedProfileIds.join(",")})` : "0") // Exclude previously swiped profiles
                     .not("id", "eq", user.id); // Exclude the current user
 
                 if (error) {

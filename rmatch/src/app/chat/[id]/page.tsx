@@ -9,7 +9,7 @@ export default function ChatPage() {
     const [chatId, setChatId] = useState(null);
     const [messages, setMessages] = useState([]);
     const [newMessage, setNewMessage] = useState("");
-    const [userId, setUserId] = useState(null);
+    const [userId, setUserId] = useState<string | null>(null); // Set userId as string | null
     const [error, setError] = useState<string | null>("");  // Updated the initial value of error
 
     // Fetch current user
@@ -24,7 +24,11 @@ export default function ChatPage() {
                 setError("Error fetching user information.");
                 return;
             }
-            setUserId(user.id);
+            if (!user) {
+                setError("User is not authenticated.");
+                return;
+            }
+            setUserId(user.id); // Set user ID only if user is not null
         }
 
         fetchUser();
