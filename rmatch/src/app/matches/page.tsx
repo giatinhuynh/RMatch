@@ -32,27 +32,46 @@ export default function Matches() {
     async function fetchMatches() {
       if (!userId) return;
 
-      // Fetch mutual matches (both users swiped right on each other)
-      const { data: matchesData, error } = await supabase
-        .from('swipes')
-        .select(`
-          swiped_profile_id, swiper_id, swipe_type, profiles!swiped_profile_id_fkey(name, profile_image)
-        `)
-        .eq('swipe_type', 'like')
-        .or(`swiper_id.eq.${userId},swiped_profile_id.eq.${userId}`); // Fetch swipes involving the current user
+      try {
+        // Step 1: Fetch IDs of profiles that swiped right on the current user
+        const { data: swipedOnMeData, error: swipedOnMeError } = await supabase
+          .from('swipes')
+          .select('swiper_id')
+          .eq('swiped_profile_id', userId)
+          .eq('swipe_type', 'like');
 
-      if (error) {
-        console.error('Error fetching matches:', error);
-        setError('Error fetching matches.');
-        return;
+        if (swipedOnMeError) {
+          console.error('Error fetching profiles who swiped on me:', swipedOnMeError);
+          setError('Error fetching swipes.');
+          return;
+        }
+
+        const swipedOnMeIds = swipedOnMeData.map((swipe) => swipe.swiper_id);
+
+        // Step 2: Fetch profiles that the current user swiped right on and are in the swipedOnMe list
+        const { data: matchesData, error: matchesError } = await supabase
+          .from('swipes')
+          .select(`
+            swiped_profile_id, swiper_id, swipe_type, profiles!swiped_profile_id_fkey(id, name, profile_image)
+          `)
+          .eq('swiper_id', userId)
+          .eq('swipe_type', 'like')
+          .in('swiped_profile_id', swipedOnMeIds); // Mutual swipe check
+
+        if (matchesError) {
+          console.error('Error fetching matches:', matchesError);
+          setError('Error fetching matches.');
+          return;
+        }
+
+        // Step 3: Filter out the current user's profile from the matches
+        const filteredMatches = matchesData.filter(match => match.profiles.id !== userId);
+
+        setMatches(filteredMatches);
+      } catch (err) {
+        console.error('Unexpected error fetching matches:', err);
+        setError('Unexpected error fetching matches.');
       }
-
-      // Filter out matches where both users swiped "like"
-      const filteredMatches = matchesData.filter(
-        (match) => match.swiper_id === userId || match.swiped_profile_id === userId
-      );
-
-      setMatches(filteredMatches);
     }
 
     fetchMatches();
