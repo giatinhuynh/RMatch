@@ -197,8 +197,14 @@ export default function Profile() {
 
             return imageUrl;
         } catch (err) {
-            console.error("Unexpected error during upload:", err.message);
-            setError(`Unexpected error: ${err.message}`);
+            // Error handling for unknown errors
+            if (err instanceof Error) {
+                console.error("Unexpected error during upload:", err.message);
+                setError(`Unexpected error: ${err.message}`);
+            } else {
+                console.error("Unexpected error during upload:", err);
+                setError("Unexpected error occurred during upload.");
+            }
             return null;
         }
     };
@@ -247,7 +253,11 @@ export default function Profile() {
 
             setSuccess(true);
         } catch (err) {
-            setError(err.message || "An error occurred while saving the profile.");
+            if (err instanceof Error) {
+                setError(err.message || "An error occurred while saving the profile.");
+            } else {
+                setError("An unknown error occurred while saving the profile.");
+            }
         } finally {
             setIsSubmitting(false);
         }
@@ -321,14 +331,14 @@ export default function Profile() {
                 maxLength={10}
             />
             <InputField
-                label="GPA"
-                type="number"
-                step="0.01"
-                value={profile.gpa}
-                onChange={(e) => setProfile({ ...profile, gpa: e.target.value })}
-                placeholder="Enter your GPA (0.00 to 4.00)"
-                min={0}
-                max={4}
+            label="GPA"
+            type="number"
+            step={0.01}  // Fix applied here
+            value={profile.gpa}
+            onChange={(e) => setProfile({ ...profile, gpa: e.target.value })}
+            placeholder="Enter your GPA (0.00 to 4.00)"
+            min={0}
+            max={4}
             />
             <InputField
                 label="Current Courses"
