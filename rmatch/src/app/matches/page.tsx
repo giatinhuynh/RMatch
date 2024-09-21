@@ -1,5 +1,3 @@
-// src/app/matches/page.tsx
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -7,17 +5,19 @@ import { supabase } from "../services/supabaseClient";
 import { useRouter } from "next/navigation"; // To navigate to the chat page
 
 export default function Matches() {
-    const [matches, setMatches] = useState([]);
-    const [userId, setUserId] = useState(null);
-    const [error, setError] = useState(null);
+    const [matches, setMatches] = useState<any[]>([]); // Matches array type
+    const [userId, setUserId] = useState<string | null>(null); // Set userId as string | null
+    const [error, setError] = useState<string | null>(null); // Allow error to be string or null
     const router = useRouter();
 
+    // Fetch user information
     useEffect(() => {
         async function fetchUser() {
             const {
                 data: { user },
                 error: userError,
             } = await supabase.auth.getUser();
+
             if (userError) {
                 console.error("Error fetching user:", userError);
                 setError("Error fetching user information.");
@@ -31,6 +31,7 @@ export default function Matches() {
         fetchUser();
     }, []);
 
+    // Fetch matches for the user
     useEffect(() => {
         async function fetchMatches() {
             if (!userId) return;
@@ -54,11 +55,12 @@ export default function Matches() {
                 // Step 2: Fetch profiles that the current user swiped right on and are in the swipedOnMe list
                 const { data: matchesData, error: matchesError } = await supabase
                     .from("swipes")
-                    .select(
-                        `
-            swiped_profile_id, swiper_id, swipe_type, profiles!swiped_profile_id_fkey(id, name, profile_image)
-          `
-                    )
+                    .select(`
+                        swiped_profile_id, 
+                        swiper_id, 
+                        swipe_type, 
+                        profiles!swiped_profile_id_fkey(id, name, profile_image)
+                    `)
                     .eq("swiper_id", userId)
                     .eq("swipe_type", "like")
                     .in("swiped_profile_id", swipedOnMeIds); // Mutual swipe check
@@ -82,8 +84,8 @@ export default function Matches() {
         fetchMatches();
     }, [userId]);
 
-    const initiateChat = (matchedProfileId) => {
-        // Logic to navigate to the chat page with the matched profile ID
+    const initiateChat = (matchedProfileId: string) => {
+        // Navigate to the chat page with the matched profile ID
         router.push(`/chat/${matchedProfileId}`);
     };
 
