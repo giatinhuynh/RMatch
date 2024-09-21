@@ -1,160 +1,175 @@
-// src/app/find-teammates/page.tsx
-
-'use client';
-
-import { useState, useEffect } from 'react';
-import ProfileCard from '../../components/ProfileCard';
-import { supabase } from '../services/supabaseClient';
+"use client";
+import { useState, useEffect } from "react";
+import ProfileCard from "../../components/ProfileCard"; // Assuming ProfileCard is external
+import { supabase } from "../services/supabaseClient";
+import { useSpring, animated } from "react-spring";
 
 export default function FindTeammates() {
-  const [profiles, setProfiles] = useState([]);
-  const [courses, setCourses] = useState([]); // Store available courses the user is currently enrolled in
-  const [selectedCourse, setSelectedCourse] = useState(''); // Store selected course
-  const [currentProfileIndex, setCurrentProfileIndex] = useState(0);
-  const [userId, setUserId] = useState(null);
-  const [error, setError] = useState(null); // Handle errors
+    const [profiles, setProfiles] = useState([]);
+    const [courses, setCourses] = useState([]);
+    const [selectedCourse, setSelectedCourse] = useState("");
+    const [currentProfileIndex, setCurrentProfileIndex] = useState(0);
+    const [userId, setUserId] = useState(null);
+    const [error, setError] = useState(null);
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false); // Track if the dropdown is open
+    const [swipeAnimation, setSwipeAnimation] = useSpring(() => ({
+        opacity: 1,
+        transform: "translateX(0)",
+    }));
 
-  // Fetch the current user ID and their currently enrolled courses
-  useEffect(() => {
-    async function fetchUserAndCourses() {
-      const { data: { user }, error: userError } = await supabase.auth.getUser();
-      if (userError) {
-        console.error('Error fetching user:', userError);
-        setError('Error fetching user information.');
-        return;
-      }
-      if (user) {
-        setUserId(user.id);
+    useEffect(() => {
+        async function fetchUserAndCourses() {
+            const {
+                data: { user },
+                error: userError,
+            } = await supabase.auth.getUser();
+            if (userError) {
+                console.error("Error fetching user:", userError);
+                setError("Error fetching user information.");
+                return;
+            }
+            if (user) {
+                setUserId(user.id);
 
-        // Fetch the user's profile to get their currently enrolled courses
-        const { data: profileData, error: profileError } = await supabase
-          .from('profiles')
-          .select('current_courses')
-          .eq('id', user.id)
-          .single();
+                const { data: profileData, error: profileError } = await supabase
+                    .from("profiles")
+                    .select("current_courses")
+                    .eq("id", user.id)
+                    .single();
 
-        if (profileError) {
-          console.error('Error fetching profile:', profileError);
-          setError('Error fetching profile.');
-          return;
+                if (profileError) {
+                    console.error("Error fetching profile:", profileError);
+                    setError("Error fetching profile.");
+                    return;
+                }
+
+                setCourses(profileData.current_courses || []);
+            }
         }
 
-        // Set the courses they are currently enrolled in
-        setCourses(profileData.current_courses || []);
-      }
-    }
+        fetchUserAndCourses();
+    }, []);
 
-    fetchUserAndCourses();
-  }, []);
+    const fetchProfilesForCourse = async (course) => {
+        if (!course || !userId) return;
 
-  // Fetch profiles for the selected course that the user hasn't swiped on yet
-  const fetchProfilesForCourse = async (course) => {
-    if (!course || !userId) return;
+        const { data: swipedProfiles, error: swipedError } = await supabase.from("swipes").select("swiped_profile_id").eq("swiper_id", userId);
+        if (swipedError) {
+            console.error("Error fetching swiped profiles:", swipedError);
+            setError("Error fetching swiped profiles.");
+            return;
+        }
 
-    // Fetch swiped profiles by the current user
-    const { data: swipedProfiles, error: swipedError } = await supabase
-      .from('swipes')
-      .select('swiped_profile_id')
-      .eq('swiper_id', userId);
+        const swipedProfileIds = swipedProfiles.map((swipe) => swipe.swiped_profile_id);
 
-    if (swipedError) {
-      console.error('Error fetching swiped profiles:', swipedError);
-      setError('Error fetching swiped profiles.');
-      return;
-    }
+        const { data: profilesData, error } = await supabase
+            .from("profiles")
+            .select("*")
+            .contains("current_courses", [course])
+            .not("id", "in", `(${swipedProfileIds.join(",")})`)
+            .not("id", "eq", userId);
 
-    const swipedProfileIds = swipedProfiles.map(swipe => swipe.swiped_profile_id);
+        if (error) {
+            console.error("Error fetching profiles:", error);
+            setError("Error fetching profiles.");
+            return;
+        }
 
-    // Fetch profiles enrolled in the selected course and exclude swiped profiles
-    const { data: profilesData, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .contains('current_courses', [course])
-      .not('id', 'in', `(${swipedProfileIds.join(',')})`) // Exclude swiped profiles
-      .not('id', 'eq', userId); // Exclude current user's profile
+        setProfiles(profilesData);
+        setCurrentProfileIndex(0);
+    };
 
-    if (error) {
-      console.error('Error fetching profiles:', error);
-      setError('Error fetching profiles.');
-      return;
-    }
+    const handleCourseChange = (e) => {
+        const selected = e.target.value;
+        setSelectedCourse(selected);
+        fetchProfilesForCourse(selected);
+        setIsDropdownOpen(false); // Close dropdown after selection
+    };
 
-    setProfiles(profilesData);
-    setCurrentProfileIndex(0); // Reset profile index when a new course is selected
-  };
+    const handleSwipe = async (profileId, swipeType) => {
+        if (!userId) return;
 
-  // Handle course selection
-  const handleCourseChange = (e) => {
-    const selected = e.target.value;
-    setSelectedCourse(selected);
-    fetchProfilesForCourse(selected);
-  };
+        setSwipeAnimation({
+            opacity: 0,
+            transform: swipeType === "right" ? "translateX(100%)" : "translateX(-100%)",
+        });
 
-  // Handle swiping logic
-  const handleSwipe = async (profileId, swipeType) => {
-    if (!userId) return;
+        // Wait for animation to finish before updating the profile index
+        await new Promise((resolve) => setTimeout(resolve, 300));
 
-    try {
-      const { error: swipeError } = await supabase
-        .from('swipes')
-        .insert([{ swiper_id: userId, swiped_profile_id: profileId, swipe_type: swipeType }]);
+        try {
+            const { error: swipeError } = await supabase
+                .from("swipes")
+                .insert([{ swiper_id: userId, swiped_profile_id: profileId, swipe_type: swipeType }]);
 
-      if (swipeError) {
-        console.error('Error inserting swipe:', swipeError);
-        setError('Error during swipe.');
-        return;
-      }
+            if (swipeError) {
+                console.error("Error inserting swipe:", swipeError);
+                setError("Error during swipe.");
+                return;
+            }
 
-      // Move to the next profile
-      setCurrentProfileIndex((prevIndex) => prevIndex + 1);
-    } catch (err) {
-      console.error('Unexpected error processing swipe:', err);
-      setError('Unexpected error processing swipe.');
-    }
-  };
+            setCurrentProfileIndex((prevIndex) => prevIndex + 1);
+        } catch (err) {
+            console.error("Unexpected error processing swipe:", err);
+            setError("Unexpected error processing swipe.");
+        }
 
-  return (
-    <div className="flex flex-col items-center justify-center h-full">
-      <h1 className="text-3xl font-bold mb-6">Find a Teammate</h1>
+        // Reset animation
+        setSwipeAnimation({ opacity: 1, transform: "translateX(0)" });
+    };
 
-      {/* Course Selection Dropdown */}
-      {courses.length > 0 ? (
-        <select
-          className="border p-2 mb-6 rounded"
-          value={selectedCourse}
-          onChange={handleCourseChange}
-        >
-          <option value="">Select a course</option>
-          {courses.map((course, index) => (
-            <option key={index} value={course}>
-              {course}
-            </option>
-          ))}
-        </select>
-      ) : (
-        <p className="text-gray-600">You are not enrolled in any courses.</p>
-      )}
+    return (
+        <div
+            className="flex flex-col items-center justify-center p-4 bg-gradient-to-r from-red-500 to-blue-700 rounded-md"
+            style={{ height: "calc(100vh - 54px)" }}>
+            <h1 className="mt-2 text-2xl font-extrabold mb-6 text-black shadow-lg">Find a Teammate</h1>
 
-      {/* Show message if no course is selected */}
-      {!selectedCourse && courses.length > 0 && <p className="text-gray-600">Please select a course to find teammates.</p>}
+            {courses.length > 0 ? (
+                <div className="relative mb-4">
+                    <select
+                        className="appearance-none w-full bg-white border border-gray-300 text-gray-700 py-3 px-4 pr-10 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition ease-in-out duration-200"
+                        value={selectedCourse}
+                        onChange={handleCourseChange}
+                        onClick={() => setIsDropdownOpen(!isDropdownOpen)} // Toggle dropdown open/close
+                        onBlur={() => setIsDropdownOpen(false)} // Close dropdown when it loses focus
+                    >
+                        <option value="" disabled>
+                            Select a course
+                        </option>
+                        {courses.map((course, index) => (
+                            <option key={index} value={course}>
+                                {course}
+                            </option>
+                        ))}
+                    </select>
 
-      {/* Show selected course */}
-      {selectedCourse && (
-        <div className="mb-4 text-lg">
-          <p className="font-bold text-gray-700">Currently finding teammates for: <span className="text-blue-600">{selectedCourse}</span></p>
+                    {/* Arrow Icon */}
+                    <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                        <svg
+                            className={`fill-current h-5 w-5 text-gray-500 transition-transform duration-300 ${
+                                isDropdownOpen ? "rotate-180" : "rotate-0"
+                            }`}
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 20 20">
+                            <path d="M7 10l5 5 5-5H7z" />
+                        </svg>
+                    </div>
+                </div>
+            ) : (
+                <p className="text-gray-200">You are not enrolled in any courses.</p>
+            )}
+
+            {!selectedCourse && courses.length > 0 && <p className="text-gray-200">Please select a course to find teammates.</p>}
+
+            {selectedCourse && profiles.length === 0 && <p className="text-gray-200">No profiles available for {selectedCourse}.</p>}
+
+            {selectedCourse && profiles.length > 0 && currentProfileIndex < profiles.length && (
+                <animated.div style={swipeAnimation} className="flex flex-col items-center mb-4 w-full transition-transform duration-200">
+                    <ProfileCard profile={profiles[currentProfileIndex]} onSwipe={handleSwipe} />
+                </animated.div>
+            )}
+
+            {error && <p className="text-red-300">{error}</p>}
         </div>
-      )}
-
-      {/* Render ProfileCard or show message if no profiles */}
-      {selectedCourse && profiles.length === 0 && (
-        <p>No profiles available for {selectedCourse}.</p>
-      )}
-      {selectedCourse && profiles.length > 0 && currentProfileIndex < profiles.length && (
-        <ProfileCard profile={profiles[currentProfileIndex]} onSwipe={handleSwipe} />
-      )}
-
-      {/* Error Handling */}
-      {error && <p className="text-red-500">{error}</p>}
-    </div>
-  );
+    );
 }
