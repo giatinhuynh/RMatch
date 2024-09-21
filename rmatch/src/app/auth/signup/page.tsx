@@ -29,7 +29,7 @@ export default function Signup() {
     };
 
     return (
-        <div className="flex items-center justify-center bg-gradient-to-r from-red-500 to-blue-700" style={{ height: "calc(100vh - 54px)" }}>
+        <div className="flex items-center justify-center bg-gradient-to-r from-red-500 to-blue-700">
             <div className="w-full max-w-md px-12 py-8 bg-white rounded-md shadow-md">
                 <div className="flex justify-center">
                     <Image src={logo} alt="RMatch Logo" width={240} height={120} />{" "}
