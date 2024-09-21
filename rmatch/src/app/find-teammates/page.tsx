@@ -56,10 +56,7 @@ export default function FindTeammates() {
         if (!course || !userId) return;
 
         // Get swiped profiles to exclude them
-        const { data: swipedProfiles, error: swipedError } = await supabase
-            .from("swipes")
-            .select("swiped_profile_id")
-            .eq("swiper_id", userId);
+        const { data: swipedProfiles, error: swipedError } = await supabase.from("swipes").select("swiped_profile_id").eq("swiper_id", userId);
         if (swipedError) {
             console.error("Error fetching swiped profiles:", swipedError);
             setError("Error fetching swiped profiles.");
@@ -132,15 +129,14 @@ export default function FindTeammates() {
     return (
         <div
             className="flex flex-col items-center justify-center p-4 bg-gradient-to-r from-red-500 to-blue-700 rounded-md"
-            style={{ height: "calc(100vh - 54px)" }}
-        >
+            style={{ height: "calc(100vh - 54px)" }}>
             <h1 className="mt-2 text-2xl font-extrabold mb-6 text-black shadow-lg">Find a Teammate</h1>
 
             {/* Course Dropdown */}
             {courses.length > 0 ? (
                 <div className="relative mb-4">
                     <select
-                        className="appearance-none w-full bg-white border border-gray-300 text-gray-700 py-3 px-4 pr-10 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition ease-in-out duration-200"
+                        className="appearance-none w-full bg-white outline-none border-none text-gray-700 py-3 px-4 pr-10 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition ease-in-out duration-200"
                         value={selectedCourse}
                         onChange={handleCourseChange}
                         onClick={() => setIsDropdownOpen(!isDropdownOpen)} // Toggle dropdown open/close
@@ -163,8 +159,7 @@ export default function FindTeammates() {
                                 isDropdownOpen ? "rotate-180" : "rotate-0"
                             }`}
                             xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 20 20"
-                        >
+                            viewBox="0 0 20 20">
                             <path d="M7 10l5 5 5-5H7z" />
                         </svg>
                     </div>
@@ -173,20 +168,13 @@ export default function FindTeammates() {
                 <p className="text-gray-200">You are not enrolled in any courses.</p>
             )}
 
-            {!selectedCourse && courses.length > 0 && (
-                <p className="text-gray-200">Please select a course to find teammates.</p>
-            )}
+            {!selectedCourse && courses.length > 0 && <p className="text-gray-200">Please select a course to find teammates.</p>}
 
-            {selectedCourse && profiles.length === 0 && (
-                <p className="text-gray-200">No profiles available for {selectedCourse}.</p>
-            )}
+            {selectedCourse && profiles.length === 0 && <p className="text-gray-200">No profiles available for {selectedCourse}.</p>}
 
             {/* Display profile cards if available */}
             {selectedCourse && profiles.length > 0 && currentProfileIndex < profiles.length && (
-                <animated.div
-                    style={swipeAnimation}
-                    className="flex flex-col items-center mb-4 w-full transition-transform duration-200"
-                >
+                <animated.div style={swipeAnimation} className="flex flex-col items-center mb-4 w-full transition-transform duration-200">
                     <ProfileCard profile={profiles[currentProfileIndex]} onSwipe={handleSwipe} />
                 </animated.div>
             )}
