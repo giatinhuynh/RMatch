@@ -9,8 +9,8 @@ export default function FindTeammates() {
     const [courses, setCourses] = useState([]);
     const [selectedCourse, setSelectedCourse] = useState("");
     const [currentProfileIndex, setCurrentProfileIndex] = useState(0);
-    const [userId, setUserId] = useState(null);
-    const [error, setError] = useState(null);
+    const [userId, setUserId] = useState<string | null>(null); // Set userId to string | null
+    const [error, setError] = useState<string | null>(null); // Allow error to be string or null
     const [isDropdownOpen, setIsDropdownOpen] = useState(false); // Track if the dropdown is open
     const [swipeAnimation, setSwipeAnimation] = useSpring(() => ({
         opacity: 1,
@@ -52,7 +52,7 @@ export default function FindTeammates() {
     }, []);
 
     // Fetch profiles for a given course
-    const fetchProfilesForCourse = async (course) => {
+    const fetchProfilesForCourse = async (course: string) => {
         if (!course || !userId) return;
 
         // Get swiped profiles to exclude them
@@ -71,7 +71,9 @@ export default function FindTeammates() {
         // Fetch profiles that match the course and exclude swiped profiles and the current user
         const { data: profilesData, error } = await supabase
             .from("profiles")
-            .select("id, name, bio, profile_image, gender, nationality, academic_program, work_preference, availability, current_courses, outcome_preference, motivation, work_ethic, team_wants") // Fetch all required fields
+            .select(
+                "id, name, bio, profile_image, gender, nationality, academic_program, work_preference, availability, current_courses, outcome_preference, motivation, work_ethic, team_wants"
+            ) // Fetch all required fields
             .contains("current_courses", [course])
             .not("id", "in", `(${swipedProfileIds.join(",")})`)
             .not("id", "eq", userId);
@@ -87,7 +89,7 @@ export default function FindTeammates() {
     };
 
     // Handle course change
-    const handleCourseChange = (e) => {
+    const handleCourseChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const selected = e.target.value;
         setSelectedCourse(selected);
         fetchProfilesForCourse(selected);
@@ -95,7 +97,7 @@ export default function FindTeammates() {
     };
 
     // Handle swipe logic (left or right)
-    const handleSwipe = async (profileId, swipeType) => {
+    const handleSwipe = async (profileId: string, swipeType: string) => {
         if (!userId) return;
 
         // Trigger swipe animation
