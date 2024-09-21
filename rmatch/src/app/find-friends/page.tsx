@@ -5,8 +5,21 @@ import ProfileCard from "../../components/ProfileCard";
 import { supabase } from "../services/supabaseClient";
 import { useSpring, animated } from "react-spring";
 
+// Define the shape of the profile object
+interface Profile {
+    id: string;
+    name: string;
+    bio: string;
+    profile_image: string;
+    interests: string;
+    availability: string;
+    gender: string;
+    academic_program: string;
+    work_preference: string;
+}
+
 export default function FindFriends() {
-    const [profiles, setProfiles] = useState([]);
+    const [profiles, setProfiles] = useState<Profile[]>([]); // Use Profile[] for the profiles array
     const [currentProfileIndex, setCurrentProfileIndex] = useState(0);
     const [userId, setUserId] = useState<string | null>(null); // Set userId as string | null
     const [error, setError] = useState<string | null>(null); // Allow error to be a string or null
@@ -60,11 +73,11 @@ export default function FindFriends() {
                 let filteredProfiles = profilesData;
                 if (swipedProfileIds.length > 0) {
                     filteredProfiles = profilesData.filter(
-                        (profile) => !swipedProfileIds.includes(profile.id)
+                        (profile: Profile) => !swipedProfileIds.includes(profile.id)
                     );
                 }
 
-                setProfiles(filteredProfiles);
+                setProfiles(filteredProfiles); // Set profiles with filtered data
                 setCurrentProfileIndex(0);
             }
         }
