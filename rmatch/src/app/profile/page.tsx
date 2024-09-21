@@ -1,10 +1,23 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, ChangeEvent } from "react";
 import { supabase } from "../services/supabaseClient";
 
+// Define the types for the InputField props
+interface InputFieldProps {
+    label: string;
+    value: string;
+    onChange: (e: ChangeEvent<HTMLInputElement>) => void;
+    type?: string;
+    placeholder?: string;
+    min?: number;
+    max?: number;
+    step?: number;
+    maxLength?: number;
+}
+
 // Component for input fields
-const InputField = ({ label, value, onChange, type = "text", placeholder = "", min, max, step, maxLength }) => (
+const InputField: React.FC<InputFieldProps> = ({ label, value, onChange, type = "text", placeholder = "", min, max, step, maxLength }) => (
     <div className="mb-4">
         <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
         <input
@@ -21,8 +34,17 @@ const InputField = ({ label, value, onChange, type = "text", placeholder = "", m
     </div>
 );
 
+// Define the types for the TextAreaField props
+interface TextAreaFieldProps {
+    label: string;
+    value: string;
+    onChange: (e: ChangeEvent<HTMLTextAreaElement>) => void;
+    placeholder?: string;
+    maxLength?: number;
+}
+
 // Component for text areas
-const TextAreaField = ({ label, value, onChange, placeholder = "", maxLength }) => (
+const TextAreaField: React.FC<TextAreaFieldProps> = ({ label, value, onChange, placeholder = "", maxLength }) => (
     <div className="mb-4">
         <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
         <textarea
@@ -41,8 +63,16 @@ const TextAreaField = ({ label, value, onChange, placeholder = "", maxLength }) 
     </div>
 );
 
+// Define the types for the SelectField props
+interface SelectFieldProps {
+    label: string;
+    value: string;
+    onChange: (e: ChangeEvent<HTMLSelectElement>) => void;
+    options: string[];
+}
+
 // Component for select dropdowns
-const SelectField = ({ label, value, onChange, options }) => (
+const SelectField: React.FC<SelectFieldProps> = ({ label, value, onChange, options }) => (
     <div className="mb-4">
         <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
         <select
@@ -59,8 +89,14 @@ const SelectField = ({ label, value, onChange, options }) => (
     </div>
 );
 
+// Define the types for the ImageUploadField props
+interface ImageUploadFieldProps {
+    label: string;
+    onChange: (e: ChangeEvent<HTMLInputElement>) => void;
+}
+
 // Image Upload Component
-const ImageUploadField = ({ label, onChange }) => (
+const ImageUploadField: React.FC<ImageUploadFieldProps> = ({ label, onChange }) => (
     <div className="mb-4">
         <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
         <input
@@ -93,11 +129,11 @@ export default function Profile() {
         nationality: "",
     });
 
-    const [error, setError] = useState("");
+    const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState(false);
     const [currentStep, setCurrentStep] = useState(1);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [imageFile, setImageFile] = useState(null); // To handle the profile image upload
+    const [imageFile, setImageFile] = useState<File | null>(null); // To handle the profile image upload
 
     useEffect(() => {
         async function fetchProfile() {
@@ -110,7 +146,11 @@ export default function Profile() {
                 return;
             }
 
-            const { data: profileData, error: profileError } = await supabase.from("profiles").select("*").eq("id", user.id).single();
+            const { data: profileData, error: profileError } = await supabase
+                .from("profiles")
+                .select("*")
+                .eq("id", user.id)
+                .single();
 
             if (profileError) {
                 setError("Error fetching profile.");
@@ -135,9 +175,8 @@ export default function Profile() {
         }
 
         try {
-            // Upload the image to the 'profile-images' bucket
             const { data, error } = await supabase.storage
-                .from("profile-images") // Make sure this matches your bucket name
+                .from("profile-images")
                 .upload(`public/${Date.now()}_${imageFile.name}`, imageFile);
 
             if (error) {
@@ -146,15 +185,16 @@ export default function Profile() {
                 return null;
             }
 
-            // Generate the public URL for the uploaded image
-            const imageUrl = supabase.storage.from("profile-images").getPublicUrl(data.path).data.publicUrl;
+            const imageUrl = supabase.storage
+                .from("profile-images")
+                .getPublicUrl(data.path)
+                .data.publicUrl;
 
             if (!imageUrl) {
                 setError("Failed to retrieve image URL after upload");
                 return null;
             }
 
-            console.log("Image uploaded successfully, URL:", imageUrl);
             return imageUrl;
         } catch (err) {
             console.error("Unexpected error during upload:", err.message);
@@ -163,7 +203,7 @@ export default function Profile() {
         }
     };
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
         if (currentStep !== 3) return;
@@ -171,9 +211,7 @@ export default function Profile() {
         setIsSubmitting(true);
 
         try {
-            const {
-                data: { user },
-            } = await supabase.auth.getUser();
+            const { data: { user } } = await supabase.auth.getUser();
             if (!user) {
                 throw new Error("User not logged in.");
             }
@@ -181,26 +219,16 @@ export default function Profile() {
             const updatedProfile = {
                 ...profile,
                 skills: profile.skills
-                    ? profile.skills
-                          .split(",")
-                          .map((skill) => skill.trim())
-                          .filter(Boolean)
+                    ? profile.skills.split(",").map((skill) => skill.trim()).filter(Boolean)
                     : [],
                 current_courses: profile.current_courses
-                    ? profile.current_courses
-                          .split(",")
-                          .map((course) => course.trim())
-                          .filter(Boolean)
+                    ? profile.current_courses.split(",").map((course) => course.trim()).filter(Boolean)
                     : [],
                 interests: profile.interests
-                    ? profile.interests
-                          .split(",")
-                          .map((interest) => interest.trim())
-                          .filter(Boolean)
+                    ? profile.interests.split(",").map((interest) => interest.trim()).filter(Boolean)
                     : [],
             };
 
-            // If an image was uploaded, upload it and update the profile image URL
             if (imageFile) {
                 const uploadedImageUrl = await handleImageUpload();
                 if (uploadedImageUrl) {
@@ -208,10 +236,9 @@ export default function Profile() {
                 }
             }
 
-            const { error: updateError } = await supabase.from("profiles").upsert({
-                id: user.id,
-                ...updatedProfile,
-            });
+            const { error: updateError } = await supabase
+                .from("profiles")
+                .upsert({ id: user.id, ...updatedProfile });
 
             if (updateError) {
                 setError(updateError.message);
@@ -244,7 +271,7 @@ export default function Profile() {
             />
             <ImageUploadField
                 label="Upload Profile Image"
-                onChange={(e) => setImageFile(e.target.files[0])} // Handle image file
+                onChange={(e) => setImageFile(e.target.files?.[0] || null)} // Handle image file
             />
             <SelectField
                 label="Gender"
