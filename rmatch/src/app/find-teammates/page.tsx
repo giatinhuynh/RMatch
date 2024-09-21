@@ -130,7 +130,7 @@ export default function FindTeammates() {
         <div
             className="flex flex-col items-center justify-center p-4 bg-gradient-to-r from-red-500 to-blue-700 rounded-md"
             style={{ height: "calc(100vh - 54px)" }}>
-            <h1 className="mt-2 text-2xl font-extrabold mb-6 text-black shadow-lg">Find a Teammate</h1>
+            <h1 className="mt-2 text-2xl font-extrabold mb-6 text-black">Find a Teammate</h1>
 
             {/* Course Dropdown */}
             {courses.length > 0 ? (

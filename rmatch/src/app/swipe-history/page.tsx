@@ -95,7 +95,7 @@ export default function SwipeHistory() {
                                 <h2 className="text-xl font-semibold mb-2 text-gray-700">{swipe.profiles.name}</h2>
                                 <p className="text-gray-600 mb-2">Swipe: {swipe.swipe_type}</p>
                                 <button
-                                    className="w-full bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600 transition duration-300"
+                                    className="w-full bg-gradient-to-r from-red-500 to-blue-700 text-white py-2 px-4 rounded hover:bg-red-600 transition duration-300"
                                     onClick={() => handleUnswipe(swipe.id)}>
                                     Unswipe
                                 </button>

@@ -105,7 +105,7 @@ export default function FindFriends() {
             className="flex flex-col items-center justify-center p-4 bg-gradient-to-r from-red-500 to-blue-700 rounded-md"
             style={{ height: "calc(100vh - 54px)" }}
         >
-            <h1 className="mt-2 text-2xl font-extrabold mb-6 text-black shadow-lg">Find Friends</h1>
+            <h1 className="mt-2 text-2xl font-extrabold mb-6 text-black">Find Friends</h1>
 
             {/* Display profile cards if available */}
             {profiles.length > 0 && currentProfileIndex < profiles.length ? (

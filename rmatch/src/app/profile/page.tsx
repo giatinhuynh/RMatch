@@ -384,7 +384,7 @@ export default function Profile() {
         {currentStep < 3 ? (
           <button
             type="button"
-            className="bg-blue-500 text-white px-4 py-2 rounded-md ml-auto"
+            className="bg-gradient-to-r from-red-500 to-blue-700 text-white px-4 py-2 rounded-md ml-auto"
             onClick={() => setCurrentStep(currentStep + 1)}
           >
             Next
@@ -392,7 +392,7 @@ export default function Profile() {
         ) : (
           <button
             type="submit"
-            className="bg-green-500 text-white px-4 py-2 rounded-md ml-auto"
+            className="bg-gradient-to-r from-red-500 to-blue-700 text-white px-4 py-2 rounded-md ml-auto"
             disabled={isSubmitting}
           >
             {isSubmitting ? 'Saving...' : 'Save Profile'}
