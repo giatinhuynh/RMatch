@@ -129,7 +129,7 @@ export default function ChatPage() {
                 <div className="border p-4 rounded-lg mb-4 max-h-96 overflow-y-auto">
                     {messages.map((message) => (
                         <div key={message.id} className={`p-2 mb-2 rounded-lg ${message.sender_id === userId ? "bg-blue-100" : "bg-gray-100"}`}>
-                            <p>{message.message_text}</p>
+                            <p className="text-gray-700">{message.message_text}</p>
                             <p className="text-xs text-gray-500">{new Date(message.sent_at).toLocaleString()}</p>
                         </div>
                     ))}
@@ -143,6 +143,7 @@ export default function ChatPage() {
                         placeholder="Type your message..."
                         value={newMessage}
                         onChange={(e) => setNewMessage(e.target.value)}
+                        color="#000"
                     />
                     <button className="bg-blue-500 text-white p-2 rounded-r-lg" onClick={sendMessage}>
                         Send
