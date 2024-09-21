@@ -1,5 +1,6 @@
 "use client"; // This makes it a client component
 
+import { ReactNode } from "react";
 import { Montserrat } from "next/font/google";
 
 const montserrat = Montserrat({
@@ -8,6 +9,10 @@ const montserrat = Montserrat({
   variable: "--font-montserrat", // CSS variable to access in styles
 });
 
-export default function FontProvider({ children }) {
+interface FontProviderProps {
+  children: ReactNode; // Declare the type for children
+}
+
+export default function FontProvider({ children }: FontProviderProps) {
   return <div className={montserrat.variable}>{children}</div>;
 }
