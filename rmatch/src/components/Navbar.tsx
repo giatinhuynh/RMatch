@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import Image from "next/image";
 
 const TeammateIcon = ({ color = "currentColor", ...props }) => (
@@ -42,14 +42,14 @@ const MatchIcon = ({ color = "currentColor", ...props }) => (
 const ProfileIcon = ({ color = "currentColor", ...props }) => (
     <svg {...props} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" fill={color}>
         <path
-            fill="currenColor"
+            fill="currentColor"
             d="M64 32C28.7 32 0 60.7 0 96L0 416c0 35.3 28.7 64 64 64l448 0c35.3 0 64-28.7 64-64l0-320c0-35.3-28.7-64-64-64L64 32zm80 256l64 0c44.2 0 80 35.8 80 80c0 8.8-7.2 16-16 16L80 384c-8.8 0-16-7.2-16-16c0-44.2 35.8-80 80-80zm-32-96a64 64 0 1 1 128 0 64 64 0 1 1 -128 0zm256-32l128 0c8.8 0 16 7.2 16 16s-7.2 16-16 16l-128 0c-8.8 0-16-7.2-16-16s7.2-16 16-16zm0 64l128 0c8.8 0 16 7.2 16 16s-7.2 16-16 16l-128 0c-8.8 0-16-7.2-16-16s7.2-16 16-16zm0 64l128 0c8.8 0 16 7.2 16 16s-7.2 16-16 16l-128 0c-8.8 0-16-7.2-16-16s7.2-16 16-16z"
         />
     </svg>
 );
 
 export default function Navbar() {
-    const router = useRouter();
+    const pathname = usePathname(); // Use `usePathname` to get the current route
 
     const navItems = [
         { name: "Find Teammates", path: "/find-teammates", icon: TeammateIcon },
@@ -69,14 +69,14 @@ export default function Navbar() {
                         <li
                             key={index}
                             className={`flex items-center py-3 px-6 text-black hover:text-[#E60028] cursor-pointer ${
-                                router.pathname === item.path ? "font-bold" : ""
+                                pathname === item.path ? "font-bold" : ""
                             }`}
-                            onClick={() => router.push(item.path)}>
+                            onClick={() => window.location.assign(item.path)}>
                             <div className="mr-4">
                                 {typeof Icon === "string" ? (
                                     <Image src={Icon} alt={`${item.name} Icon`} className="w-6 h-6 rounded-full" />
                                 ) : (
-                                    <Icon color={router.pathname === item.path ? "#E60028" : "currentColor"} width={24} height={24} />
+                                    <Icon color={pathname === item.path ? "#E60028" : "currentColor"} width={24} height={24} />
                                 )}
                             </div>
                             {item.name}
