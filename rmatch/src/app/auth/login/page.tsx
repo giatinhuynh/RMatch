@@ -29,9 +29,9 @@ export default function Login() {
     };
 
     return (
-        <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-red-500 to-blue-700">
-            <div className="w-full max-w-md p-8 bg-white rounded-md shadow-md">
-                <div className="flex justify-center mb-4">
+        <div className="flex items-center justify-center bg-gradient-to-r from-red-500 to-blue-700" style={{ height: "calc(100vh - 54px)" }}>
+            <div className="w-full max-w-md px-12 py-8 bg-white rounded-md shadow-md">
+                <div className="flex justify-center">
                     <Image src={logo} alt="RMatch Logo" width={240} height={120} />
                 </div>
                 <h1 className="text-2xl font-bold text-center mb-6 text-gray-800">Login</h1>
@@ -75,7 +75,7 @@ export default function Login() {
                 <div className="mt-6 text-center">
                     <p className="text-sm text-gray-600">
                         Don’t have an account?{" "}
-                        <a href="/signup" className="text-blue-600 hover:underline">
+                        <a href="/auth/signup" className="text-blue-600 hover:underline">
                             Sign up now
                         </a>
                     </p>

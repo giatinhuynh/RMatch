@@ -6,7 +6,7 @@ import { useState } from "react";
 import { supabase } from "../../services/supabaseClient";
 import { useRouter } from "next/navigation"; // Use next/navigation for App Router
 import Image from "next/image"; // Import Image for logo usage
-import logo from "../../img/logo.svg";
+import logo from "../../img/logo.png";
 
 export default function Signup() {
     const [email, setEmail] = useState("");
@@ -29,19 +29,19 @@ export default function Signup() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-red-500 via-purple-500 to-blue-500">
-            <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-                <div className="flex justify-center mb-6">
+        <div className="flex items-center justify-center bg-gradient-to-r from-red-500 to-blue-700" style={{ height: "calc(100vh - 54px)" }}>
+            <div className="w-full max-w-md px-12 py-8 bg-white rounded-md shadow-md">
+                <div className="flex justify-center">
                     <Image src={logo} alt="RMatch Logo" width={240} height={120} />{" "}
                 </div>
-                <h2 className="text-2xl font-bold text-center mb-6 text-gray-600">Create an account</h2>
-                {error && <p className="text-red-500 text-center">{error}</p>}
+                <h2 className="text-2xl font-bold text-center mb-6 text-gray-800">Create an account</h2>
+                {error && <p className="mb-4 text-sm text-red-600">{error}</p>}
                 <form onSubmit={handleSignup} className="space-y-6">
                     <div>
-                        <label className="block text-gray-700">Email or phone number</label>
+                        <label className="block text-sm font-medium text-gray-700">Email or phone number</label>
                         <input
                             type="email"
-                            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-indigo-500 text-gray-700"
+                            className="w-full px-4 py-2 mt-1 text-gray-700 bg-gray-200 border rounded-md focus:ring-blue-500 focus:border-blue-500"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             required
@@ -51,7 +51,7 @@ export default function Signup() {
                         <label className="block text-gray-700">Password</label>
                         <input
                             type="password"
-                            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-indigo-500 text-gray-700"
+                            className="w-full px-4 py-2 mt-1 text-gray-700 bg-gray-200 border rounded-md focus:ring-blue-500 focus:border-blue-500"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             required
@@ -63,16 +63,18 @@ export default function Signup() {
                     </div>
                     <button
                         type="submit"
-                        className="w-full py-3 bg-gradient-to-r from-red-500 to-blue-500 text-white font-bold rounded-lg hover:bg-gradient-to-l transition-all">
+                        className="w-full px-4 py-2 text-white bg-gradient-to-r from-red-500 to-blue-700 rounded-md hover:from-red-600 hover:to-blue-800">
                         Sign Up
                     </button>
                 </form>
-                <p className="mt-6 text-center text-sm text-gray-600">
-                    Already have an account?{" "}
-                    <a href="/auth/login" className="text-blue-500 font-bold">
-                        Sign in
-                    </a>
-                </p>
+                <div className="mt-6 text-center">
+                    <p className="text-sm text-gray-600">
+                        Already have an account?{" "}
+                        <a href="/auth/login" className="text-blue-600 hover:underline">
+                            Sign in
+                        </a>
+                    </p>
+                </div>
             </div>
         </div>
     );
