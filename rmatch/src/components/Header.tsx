@@ -11,7 +11,7 @@ export default function Header() {
     return (
         <header className="bg-white shadow p-1 px-3 flex justify-between items-center w-full h-[54px]">
             {/* Logo */}
-            <div className="flex items-center cursor-pointer" onClick={() => router.push("/")}>
+            <div className="flex items-center cursor-pointer" onClick={() => router.push("/find-teammates")}>
                 <Image
                     src={logo} // Use imported image
                     alt="RMatch Logo"
