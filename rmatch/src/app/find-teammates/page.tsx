@@ -4,9 +4,27 @@ import ProfileCard from "../../components/ProfileCard";
 import { supabase } from "../services/supabaseClient";
 import { useSpring, animated } from "react-spring";
 
+// Define the type for a profile
+interface Profile {
+    id: string;
+    name: string;
+    bio: string;
+    profile_image: string;
+    gender: string;
+    nationality: string;
+    academic_program: string;
+    work_preference: string;
+    availability: string;
+    current_courses: string[];
+    outcome_preference: string;
+    motivation: string;
+    work_ethic: string;
+    team_wants: string[];
+}
+
 export default function FindTeammates() {
-    const [profiles, setProfiles] = useState([]);
-    const [courses, setCourses] = useState([]);
+    const [profiles, setProfiles] = useState<Profile[]>([]); // Specify the type for profiles
+    const [courses, setCourses] = useState<string[]>([]); // Specify the type for courses
     const [selectedCourse, setSelectedCourse] = useState("");
     const [currentProfileIndex, setCurrentProfileIndex] = useState(0);
     const [userId, setUserId] = useState<string | null>(null); // Set userId to string | null
@@ -84,7 +102,7 @@ export default function FindTeammates() {
             return;
         }
 
-        setProfiles(profilesData);
+        setProfiles(profilesData as Profile[]); // Explicitly type profilesData
         setCurrentProfileIndex(0);
     };
 
