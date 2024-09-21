@@ -4,7 +4,7 @@
 
 import { useEffect, useState } from 'react';
 import { supabase } from '../services/supabaseClient';
-import { useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation'; // To navigate to the chat page
 
 export default function Matches() {
   const [matches, setMatches] = useState([]);
@@ -12,7 +12,6 @@ export default function Matches() {
   const [error, setError] = useState(null);
   const router = useRouter();
 
-  // Fetch the current user
   useEffect(() => {
     async function fetchUser() {
       const { data: { user }, error: userError } = await supabase.auth.getUser();
@@ -29,17 +28,18 @@ export default function Matches() {
     fetchUser();
   }, []);
 
-  // Fetch matches from the matches table
   useEffect(() => {
     async function fetchMatches() {
       if (!userId) return;
 
+      // Fetch mutual matches (both users swiped right on each other)
       const { data: matchesData, error } = await supabase
-        .from('matches')
+        .from('swipes')
         .select(`
-          user_1_id, user_2_id, profiles!user_1_id_fkey(name, profile_image), profiles!user_2_id_fkey(name, profile_image)
+          swiped_profile_id, swiper_id, swipe_type, profiles!swiped_profile_id_fkey(name, profile_image)
         `)
-        .or(`user_1_id.eq.${userId},user_2_id.eq.${userId}`);
+        .eq('swipe_type', 'like')
+        .or(`swiper_id.eq.${userId},swiped_profile_id.eq.${userId}`); // Fetch swipes involving the current user
 
       if (error) {
         console.error('Error fetching matches:', error);
@@ -47,47 +47,46 @@ export default function Matches() {
         return;
       }
 
-      setMatches(matchesData);
+      // Filter out matches where both users swiped "like"
+      const filteredMatches = matchesData.filter(
+        (match) => match.swiper_id === userId || match.swiped_profile_id === userId
+      );
+
+      setMatches(filteredMatches);
     }
 
     fetchMatches();
   }, [userId]);
 
-  // Function to navigate to the chat page
-  const initiateChat = (matchedUserId) => {
-    router.push(`/chat/${matchedUserId}`);
+  const initiateChat = (matchedProfileId) => {
+    // Logic to navigate to the chat page with the matched profile ID
+    router.push(`/chat/${matchedProfileId}`);
   };
 
   return (
     <div className="max-w-4xl mx-auto p-6">
       <h1 className="text-3xl font-bold mb-6">Your Matches</h1>
 
-      {/* Display matches or show a message if no matches */}
+      {/* Display matches or a message if no matches are found */}
       {matches.length > 0 ? (
-        matches.map((match, index) => {
-          // Determine which user is the matched profile (the user other than the current one)
-          const matchedUserId = match.user_1_id === userId ? match.user_2_id : match.user_1_id;
-          const profile = match.user_1_id === userId ? match.profiles[1] : match.profiles[0];
-
-          return (
-            <div key={index} className="bg-white p-4 shadow-md rounded-lg mb-4 flex items-center justify-between">
-              <div className="flex items-center">
-                <img
-                  src={profile?.profile_image || '/images/default-avatar.jpg'}
-                  alt={profile?.name}
-                  className="w-12 h-12 rounded-full mr-4"
-                />
-                <p>{profile?.name}</p>
-              </div>
-              <button
-                className="bg-blue-500 text-white py-2 px-4 rounded"
-                onClick={() => initiateChat(matchedUserId)}
-              >
-                Chat
-              </button>
+        matches.map((match, index) => (
+          <div key={index} className="bg-white p-4 shadow-md rounded-lg mb-4 flex items-center justify-between">
+            <div className="flex items-center">
+              <img
+                src={match.profiles?.profile_image || '/images/default-avatar.jpg'}
+                alt={match.profiles?.name}
+                className="w-12 h-12 rounded-full mr-4"
+              />
+              <p>{match.profiles?.name}</p>
             </div>
-          );
-        })
+            <button
+              className="bg-blue-500 text-white py-2 px-4 rounded"
+              onClick={() => initiateChat(match.swiped_profile_id)}
+            >
+              Chat
+            </button>
+          </div>
+        ))
       ) : (
         <p>No matches found.</p>
       )}

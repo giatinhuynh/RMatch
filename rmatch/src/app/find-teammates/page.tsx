@@ -1,3 +1,5 @@
+// src/app/find-teammates/page.tsx
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -6,7 +8,7 @@ import { supabase } from '../services/supabaseClient';
 
 export default function FindTeammates() {
   const [profiles, setProfiles] = useState([]);
-  const [courses, setCourses] = useState([]); // Store user's enrolled courses
+  const [courses, setCourses] = useState([]); // Store available courses the user is currently enrolled in
   const [selectedCourse, setSelectedCourse] = useState(''); // Store selected course
   const [currentProfileIndex, setCurrentProfileIndex] = useState(0);
   const [userId, setUserId] = useState(null);
@@ -37,21 +39,19 @@ export default function FindTeammates() {
           return;
         }
 
-        if (profileData.current_courses && profileData.current_courses.length > 0) {
-          setCourses(profileData.current_courses); // Set courses the user is enrolled in
-        } else {
-          console.log('No courses found for user.');
-          setError('You are not enrolled in any courses.');
-        }
+        // Set the courses they are currently enrolled in
+        setCourses(profileData.current_courses || []);
       }
     }
 
     fetchUserAndCourses();
   }, []);
 
+  // Fetch profiles for the selected course that the user hasn't swiped on yet
   const fetchProfilesForCourse = async (course) => {
     if (!course || !userId) return;
 
+    // Fetch swiped profiles by the current user
     const { data: swipedProfiles, error: swipedError } = await supabase
       .from('swipes')
       .select('swiped_profile_id')
@@ -63,14 +63,15 @@ export default function FindTeammates() {
       return;
     }
 
-    const swipedProfileIds = swipedProfiles.map((swipe) => swipe.swiped_profile_id);
+    const swipedProfileIds = swipedProfiles.map(swipe => swipe.swiped_profile_id);
 
+    // Fetch profiles enrolled in the selected course and exclude swiped profiles
     const { data: profilesData, error } = await supabase
       .from('profiles')
       .select('*')
       .contains('current_courses', [course])
-      .not('id', 'in', `(${swipedProfileIds.join(',')})`)
-      .not('id', 'eq', userId);
+      .not('id', 'in', `(${swipedProfileIds.join(',')})`) // Exclude swiped profiles
+      .not('id', 'eq', userId); // Exclude current user's profile
 
     if (error) {
       console.error('Error fetching profiles:', error);
@@ -82,26 +83,24 @@ export default function FindTeammates() {
     setCurrentProfileIndex(0); // Reset profile index when a new course is selected
   };
 
+  // Handle course selection
   const handleCourseChange = (e) => {
     const selected = e.target.value;
     setSelectedCourse(selected);
     fetchProfilesForCourse(selected);
   };
 
-  // Define the handleSwipe function
+  // Handle swiping logic
   const handleSwipe = async (profileId, swipeType) => {
     if (!userId) return;
 
-    console.log('Attempting to swipe: ', { profileId, swipeType, userId });
-
     try {
-      // Insert the swipe into the swipes table
       const { error: swipeError } = await supabase
         .from('swipes')
-        .insert([{ swiper_id: userId, swiped_profile_id: profileId, swipe_type }]);
+        .insert([{ swiper_id: userId, swiped_profile_id: profileId, swipe_type: swipeType }]);
 
       if (swipeError) {
-        console.error('Error inserting swipe:', swipeError.message); // Log the error message
+        console.error('Error inserting swipe:', swipeError);
         setError('Error during swipe.');
         return;
       }
@@ -109,8 +108,8 @@ export default function FindTeammates() {
       // Move to the next profile
       setCurrentProfileIndex((prevIndex) => prevIndex + 1);
     } catch (err) {
-      console.error('Unexpected error during swipe:', err); // Log any unexpected error
-      setError('Unexpected error during swipe.');
+      console.error('Unexpected error processing swipe:', err);
+      setError('Unexpected error processing swipe.');
     }
   };
 
@@ -135,6 +134,9 @@ export default function FindTeammates() {
       ) : (
         <p className="text-gray-600">You are not enrolled in any courses.</p>
       )}
+
+      {/* Show message if no course is selected */}
+      {!selectedCourse && courses.length > 0 && <p className="text-gray-600">Please select a course to find teammates.</p>}
 
       {/* Show selected course */}
       {selectedCourse && (
