@@ -1,9 +1,22 @@
-// src/services/profileService.ts
-
 import { supabase } from './supabaseClient';
 
+// Define other default profile fields
+const otherDefaultProfileFields = {
+  academic_program: '',
+  skills: '',
+  profile_image: '',
+  gender: '',
+  nationality: '',
+  availability: '',
+  interests: '',
+  work_preference: '',
+  student_id: '',
+  gpa: '',
+  // Add any other default fields for the profile here
+};
+
 // Check if the user profile exists, if not, create it
-export const checkOrCreateUserProfile = async (userId) => {
+export const checkOrCreateUserProfile = async (userId: string) => {
   // Fetch the user profile from the `profiles` table
   const { data: profile, error } = await supabase
     .from('profiles')
