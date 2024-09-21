@@ -95,7 +95,7 @@ export default function Navbar() {
             <div className="mt-auto mb-4">
                 <button
                     onClick={handleSignOut}
-                    className="flex items-center justify-center py-2 px-6 bg-red-600 text-white rounded-full hover:bg-red-700 transition duration-200 ease-in-out shadow-md w-full"
+                    className="flex items-center justify-center py-2 px-6 bg-gradient-to-r from-red-500 text-white rounded-full hover:bg-red-700 transition duration-200 ease-in-out shadow-md w-full"
                 >
                     Sign Out
                 </button>
