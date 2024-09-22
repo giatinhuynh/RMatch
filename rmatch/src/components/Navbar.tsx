@@ -92,12 +92,12 @@ export default function Navbar() {
             </ul>
 
             {/* Sign Out Button */}
-            <div className="mt-auto mb-4">
+            <div className="mt-auto mb-4 flex justify-center">
                 <button
                     onClick={handleSignOut}
-                    className="flex items-center justify-center py-2 px-6 bg-gradient-to-r from-red-500 text-white rounded-full hover:bg-red-700 transition duration-200 ease-in-out shadow-md w-full"
+                    className="flex items-center justify-center py-2 px-4 bg-gradient-to-r from-red-400 to-red-600 text-white rounded-full hover:from-red-500 hover:to-red-700 transition duration-200 ease-in-out shadow-md"
                 >
-                    Sign Out
+                    <span className="text-sm">Sign Out</span>
                 </button>
             </div>
         </nav>
