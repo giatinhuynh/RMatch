@@ -35,6 +35,26 @@ A dynamic web application designed specifically for RMIT students to connect wit
 
 ---
 
+## User Accounts for Testing
+
+For convenience, you can use the following test accounts to explore the app:
+
+1. **Email**: biraincute@gmail.com  
+   **Password**: giatinqn123
+
+2. **Email**: giatinhuynh2612@gmail.com  
+   **Password**: giatinqn123
+
+---
+
+## Account Creation
+
+If you'd prefer to create your own account, you can register using your email and password directly within the app.
+
+**Note**: After creating a new account, **please check your email for verification**. You will need to verify your email address before you can access the full features of the app. The verification email should arrive within a few minutes. If you don't see it, be sure to check your spam or junk folder.
+
+---
+
 ## Technologies Used
 
 - **Frontend**: React.js, TailwindCSS, Next.js, and TypeScript.
